@@ -77,6 +77,6 @@ The agent's private DID key must never be committed to this repository. Local id
 
 ## Status
 
-**Phase 2 — repository foundation**
+**Phase 2.1 — phone-friendly runtime and DID setup**
 
-The technical implementation and execution environment have not yet been finalized.
+The project uses a browser-based DID generator so the operator does not need a local Python installation or terminal. The private identity is generated and encrypted locally in the browser; it is never uploaded to the repository.
