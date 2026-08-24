@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Local configuration and secrets
+.env
+.env.*
+*.pem
+*.key
+*.secret
+
+# Agent identity and runtime state
+identity.pem
+state/
+.runtime/
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
