@@ -1,52 +1,59 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Babzi Research Agent — DID Generator</title>
-  <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:720px;margin:40px auto;padding:0 20px;line-height:1.5}
-    button{font-size:17px;padding:12px 16px;border-radius:10px;border:1px solid #888;background:#fff}
-    input{font-size:17px;padding:12px;width:100%;box-sizing:border-box;margin:6px 0 14px}
-    .warning{padding:12px;border:1px solid #cc9;border-radius:10px;background:#fffbe6}
-    #result{word-break:break-all}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Babzi Research Agent — DID Generator</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:720px;margin:40px auto;padding:0 20px;line-height:1.5}button{font-size:17px;padding:12px 16px;border-radius:10px;border:1px solid #888;background:#fff}input{font-size:17px;padding:12px;width:100%;box-sizing:border-box;margin:6px 0 14px}.warning{padding:12px;border:1px solid #cc9;border-radius:10px;background:#fffbe6}#result{word-break:break-all}</style>
 </head>
 <body>
-  <h1>Babzi Research Agent</h1>
-  <p>Local browser tool for creating the agent's Ed25519 <code>did:key</code> identity.</p>
-  <div class="warning"><strong>Security:</strong> the private key is generated in this browser. It is encrypted before download. Never upload the resulting identity file or passphrase to GitHub, ChatGPT, or anyone else.</div>
-  <p>This page does not send the generated key to a server.</p>
-  <label for="pass">Passphrase (12+ characters)</label>
-  <input id="pass" type="password" autocomplete="new-password">
-  <button id="generate">Generate identity</button>
-  <div id="result"></div>
+<h1>Babzi Research Agent</h1>
+<p>Local browser tool for creating a Technocore-compatible encrypted Ed25519 <code>did:key</code> identity.</p>
+<div class="warning"><strong>Security:</strong> the private key is generated in this browser. It is encrypted before download. Never upload the resulting identity file or passphrase to GitHub, ChatGPT, or anyone else.</div>
+<p>This page does not send the generated key to a server.</p>
+<label for="pass">Passphrase (12+ characters)</label>
+<input id="pass" type="password" autocomplete="new-password">
+<button id="generate">Generate identity</button>
+<div id="result"></div>
 <script>
 const alphabet='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const te=new TextEncoder();
 function b58(bytes){let zeros=0;for(const b of bytes){if(b===0)zeros++;else break}let n=0n;for(const b of bytes)n=(n<<8n)+BigInt(b);let s='';while(n){const r=Number(n%58n);s=alphabet[r]+s;n/=58n}return '1'.repeat(zeros)+(s||'');}
 function concat(...xs){let n=xs.reduce((a,x)=>a+x.length,0),o=new Uint8Array(n),p=0;for(const x of xs){o.set(x,p);p+=x.length}return o}
 function b64(bytes){let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
-function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function pem(bytes){const s=b64(bytes),lines=[];for(let i=0;i<s.length;i+=64)lines.push(s.slice(i,i+64));return '-----BEGIN ENCRYPTED PRIVATE KEY-----\n'+lines.join('\n')+'\n-----END ENCRYPTED PRIVATE KEY-----\n'}
+function derLen(n){if(n<128)return new Uint8Array([n]);const a=[];while(n){a.unshift(n&255);n>>>=8}return new Uint8Array([0x80|a.length,...a])}
+function der(tag,body){return concat(new Uint8Array([tag]),derLen(body.length),body)}
+function seq(...xs){return der(0x30,concat(...xs))}
+function octet(x){return der(0x04,x)}
+function oid(bytes){return der(0x06,new Uint8Array(bytes))}
+function integer(n){const a=[];while(n){a.unshift(n&255);n=Math.floor(n/256)}if(!a.length)a.push(0);if(a[0]&0x80)a.unshift(0);return der(0x02,new Uint8Array(a))}
+function nullDer(){return new Uint8Array([0x05,0x00])}
+function alg(oidBytes,params){return seq(oid(oidBytes),params)}
+async function encryptPkcs8(pkcs8,password){
+ const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(16));
+ const material=await crypto.subtle.importKey('raw',te.encode(password),'PBKDF2',false,['deriveKey']);
+ const aes=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:600000,hash:'SHA-256'},material,{name:'AES-CBC',length:256},false,['encrypt']);
+ const encrypted=new Uint8Array(await crypto.subtle.encrypt({name:'AES-CBC',iv},aes,pkcs8));
+ const oidPbes2=[0x2a,0x86,0x48,0x86,0xf7,0x0d,0x01,0x05,0x0d],oidPbkdf2=[0x2a,0x86,0x48,0x86,0xf7,0x0d,0x01,0x05,0x0c],oidHmacSha256=[0x2a,0x86,0x48,0x86,0xf7,0x0d,0x02,0x09],oidAes256Cbc=[0x60,0x86,0x48,0x01,0x65,0x03,0x04,0x01,0x2a];
+ const pbkdf2Params=seq(octet(salt),integer(600000),integer(32),alg(oidHmacSha256,nullDer()));
+ const pbes2Params=seq(alg(oidPbkdf2,pbkdf2Params),alg(oidAes256Cbc,octet(iv)));
+ return seq(alg(oidPbes2,pbes2Params),octet(encrypted));
+}
+function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/x-pem-file'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 async function generate(){
-  const pass=document.querySelector('#pass').value;
-  const result=document.querySelector('#result');
-  if(pass.length<12){result.textContent='Use a passphrase of at least 12 characters.';return}
-  if(!crypto.subtle){result.textContent='Web Crypto is unavailable in this browser.';return}
-  try{
-    const key=await crypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
-    const rawPub=new Uint8Array(await crypto.subtle.exportKey('raw',key.publicKey));
-    const pkcs8=new Uint8Array(await crypto.subtle.exportKey('pkcs8',key.privateKey));
-    const did='did:key:z'+b58(concat(new Uint8Array([0xed,0x01]),rawPub));
-    const salt=crypto.getRandomValues(new Uint8Array(16));
-    const iv=crypto.getRandomValues(new Uint8Array(12));
-    const material=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);
-    const aes=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt']);
-    const encrypted=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},aes,pkcs8));
-    const identity={format:'babzi-research-agent.identity.v1',algorithm:'Ed25519',did,salt:b64(salt),iv:b64(iv),ciphertext:b64(encrypted),kdf:{name:'PBKDF2',hash:'SHA-256',iterations:250000},cipher:{name:'AES-GCM',tagLength:128}};
-    download('babzi-research-agent.identity.json',JSON.stringify(identity,null,2));
-    result.innerHTML='<h2>Identity created</h2><p><strong>DID:</strong> '+did+'</p><p>The encrypted identity file was downloaded to your device. Keep it private and back it up securely.</p>';
-    document.querySelector('#pass').value='';
-  }catch(e){result.textContent='Could not create identity: '+e.message}
+ const pass=document.querySelector('#pass').value,result=document.querySelector('#result');
+ if(pass.length<12){result.textContent='Use a passphrase of at least 12 characters.';return}
+ if(!crypto.subtle){result.textContent='Web Crypto is unavailable in this browser.';return}
+ try{
+  const key=await crypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
+  const rawPub=new Uint8Array(await crypto.subtle.exportKey('raw',key.publicKey));
+  const pkcs8=new Uint8Array(await crypto.subtle.exportKey('pkcs8',key.privateKey));
+  const did='did:key:z'+b58(concat(new Uint8Array([0xed,0x01]),rawPub));
+  const encryptedPem=await encryptPkcs8(pkcs8,pass);
+  download('identity.pem',pem(encryptedPem));
+  result.innerHTML='<h2>Identity created</h2><p><strong>DID:</strong> '+did+'</p><p><strong>Downloaded:</strong> <code>identity.pem</code></p><p>This PEM is encrypted and is compatible with the Technocore starter. Keep it private and back it up securely.</p>';
+  document.querySelector('#pass').value='';
+ }catch(e){result.textContent='Could not create identity: '+e.message}
 }
 document.querySelector('#generate').addEventListener('click',generate);
 </script>
