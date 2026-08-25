@@ -1,4 +1,4 @@
-name: Deploy DID generator
+name: Deploy Babzi Research Agent console
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
       - name: Prepare site
         run: |
           mkdir -p _site
-          cp -R tools/did-generator/. _site/
+          cp -R web/. _site/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
