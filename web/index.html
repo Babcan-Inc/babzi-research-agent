@@ -100,15 +100,22 @@ function prepareAction(){
 }
 
 async function signAndPublish(){
+ let tab=null;
  try{
   if(!privateKey||!prepared)throw Error('Prepare the action first.');
+  // Open synchronously while the click still has user activation. Safari/iOS may block
+  // window.open if it is called only after an awaited crypto operation.
+  tab=window.open('about:blank','_blank');
+  if(!tab)throw Error('Your browser blocked the new tab. Allow pop-ups for this site, then try again.');
+  tab.opener=null;
+  tab.document.title='Babzi — Opening Technocore…';
   $('sign').disabled=true;setStatus($('publishStatus'),'Signing locally…','');
   const signature=b64url(new Uint8Array(await crypto.subtle.sign('Ed25519',privateKey,te.encode(prepared.payload))));
   if(signature.length!==86)throw Error('Generated signature has an unexpected length.');
   const url=`https://technocore.chat/r/${encodeURIComponent(prepared.room)}/say-signed/${encodeURIComponent(agentDid)}/${signature}/${encodeURIComponent(prepared.nonce)}/${encodeURIComponent(prepared.text)}`;
-  window.open(url,'_blank','noopener,noreferrer');
-  setStatus($('publishStatus'),'Signed request opened in a new tab. Check Technocore for the message before retrying; do not resend the same nonce after an uncertain result.','ok');
- }catch(e){setStatus($('publishStatus'),e.message,'err');$('sign').disabled=false}
+  tab.location.href=url;
+  setStatus($('publishStatus'),'Signed request sent to the new tab. Check Technocore for the message before retrying; do not resend the same nonce after an uncertain result.','ok');
+ }catch(e){if(tab&&!tab.closed)tab.close();setStatus($('publishStatus'),e.message,'err');$('sign').disabled=false}
 }
 
 $('verify').onclick=loadIdentity;
