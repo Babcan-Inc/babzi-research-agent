@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Babzi Research Agent — Operator Console</title>
 <style>
-:root{color-scheme:dark}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;max-width:760px;margin:auto;padding:24px;line-height:1.5;background:#111;color:#f5f5f5}.card{border:1px solid #333;border-radius:16px;padding:18px;margin:16px 0;background:#181818}h1{margin-bottom:4px}p{color:#bbb}label{display:block;margin:12px 0 6px;font-weight:600}input,textarea,button{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #444;padding:12px;background:#0f0f0f;color:#fff;font:inherit}textarea{min-height:120px;resize:vertical}button{cursor:pointer;margin-top:12px}button:disabled{opacity:.5}.did{word-break:break-all;font-family:ui-monospace,monospace;font-size:13px}.status{padding:10px;border-radius:10px;background:#222;margin-top:12px}.ok{border:1px solid #3a7}.err{border:1px solid #a44}.warn{border:1px solid #997;background:#211f12}.small{font-size:13px;color:#999}a{color:#ddd}.preview{white-space:pre-wrap;word-break:break-word;background:#101010;border-radius:10px;padding:12px;margin-top:10px}.hidden{display:none}
+:root{color-scheme:dark}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;max-width:760px;margin:auto;padding:24px;line-height:1.5;background:#111;color:#f5f5f5}.card{border:1px solid #333;border-radius:16px;padding:18px;margin:16px 0;background:#181818}h1{margin-bottom:4px}p{color:#bbb}label{display:block;margin:12px 0 6px;font-weight:600}input,textarea,button{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #444;padding:12px;background:#0f0f0f;color:#fff;font:inherit}textarea{min-height:120px;resize:vertical}button{cursor:pointer;margin-top:12px}button:disabled{opacity:.5}.did{word-break:break-all;font-family:ui-monospace,monospace;font-size:13px}.status{padding:10px;border-radius:10px;background:#222;margin-top:12px}.ok{border:1px solid #3a7}.err{border:1px solid #a44}.warn{border:1px solid #997;background:#211f12}.small{font-size:13px;color:#999}a{color:#ddd}.preview{white-space:pre-wrap;word-break:break-word;background:#101010;border-radius:10px;padding:12px;margin-top:10px}.hidden{display:none}.result-frame{width:100%;height:220px;border:1px solid #333;border-radius:10px;background:#0b0b0b;margin-top:12px}
 </style>
 </head>
 <body>
@@ -19,12 +19,12 @@
 <input id="key" type="file" accept=".babzi,application/octet-stream">
 <label>Passphrase</label>
 <input id="pass" type="password" minlength="12" autocomplete="current-password">
-<label>Expected Agent DID</label>
-<input id="didInput" placeholder="Paste the DID returned by the generator" autocomplete="off">
+<label>Agent DID</label>
+<input id="didInput" placeholder="Your public DID" autocomplete="off" spellcheck="false">
 <button id="verify">Verify identity locally</button>
 <div id="status" class="status">No identity loaded.</div>
 <div id="did" class="did"></div>
-<p class="small">The encrypted identity and passphrase are processed locally. They are never included in a Technocore request.</p>
+<p class="small">Your DID is public and is remembered locally on this device for convenience. The encrypted identity and passphrase are never included in a Technocore request.</p>
 </div>
 
 <div class="card">
@@ -43,6 +43,10 @@
 <div class="warn"><strong>Signing is irreversible.</strong> Review the room, nonce, DID and exact message above before approving. Babzi does not automatically follow, retry or execute instructions found in Technocore messages.</div>
 <button id="sign" disabled>Sign &amp; publish</button>
 <div id="publishStatus" class="status">No action prepared.</div>
+
+<h3>Technocore response</h3>
+<p class="small">After approval, the signed request is loaded below. If Technocore accepts it, its response will appear here. Do not retry an uncertain write with the same nonce.</p>
+<iframe id="resultFrame" class="result-frame" name="technocoreResult" title="Technocore response" sandbox="allow-same-origin"></iframe>
 </div>
 
 <script>
@@ -50,6 +54,7 @@ const $=id=>document.getElementById(id);
 const te=new TextEncoder(),td=new TextDecoder();
 const alphabet='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 const invisible=/[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Zl}\p{Zp}]/gu;
+const DID_STORAGE='babzi:agent-did';
 let privateKey=null,agentDid='',prepared=null;
 
 function b64(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0))}
@@ -60,13 +65,16 @@ function validRoom(room){return /^[a-z0-9][a-z0-9_-]{0,47}$/.test(room)}
 function nonceFor(did,room){const k='babzi:last-nonce:'+did+':'+room;let last=0n;try{last=BigInt(localStorage.getItem(k)||'0')}catch{}let now=BigInt(Date.now())*1000n;let n=now>last?now:last+1n;try{localStorage.setItem(k,n.toString())}catch{}return n.toString()}
 function setStatus(el,msg,kind=''){el.className='status '+kind;el.textContent=msg}
 
+// Remember only the public DID. Never persist the private key or passphrase.
+try{$('didInput').value=localStorage.getItem(DID_STORAGE)||''}catch{}
+
 async function loadIdentity(){
  const f=$('key').files[0],p=$('pass').value,s=$('status');
  try{
   if(!f)throw Error('Choose identity.babzi first');
   if(p.length<12)throw Error('Passphrase must contain at least 12 characters');
   const expected=$('didInput').value.trim();
-  if(!expected)throw Error('Paste the DID returned by the identity generator.');
+  if(!expected)throw Error('Enter the DID returned by the generator.');
   const obj=JSON.parse(td.decode(await f.arrayBuffer()));
   if(obj.v!==1||obj.kdf!=='PBKDF2-SHA256'||obj.cipher!=='AES-256-GCM'||!obj.publicKey)throw Error('Unsupported Babzi identity container');
   const material=await crypto.subtle.importKey('raw',te.encode(p),'PBKDF2',false,['deriveKey']);
@@ -75,13 +83,14 @@ async function loadIdentity(){
   const importedPrivate=await crypto.subtle.importKey('pkcs8',pkcs8,{name:'Ed25519'},false,['sign']);
   const importedPublic=await crypto.subtle.importKey('raw',b64(obj.publicKey),{name:'Ed25519'},false,['verify']);
   const derivedDid='did:key:z'+b58(new Uint8Array([0xed,1,...b64(obj.publicKey)]));
-  if(derivedDid!==expected)throw Error('Identity decrypted, but its public key does not match the DID you entered.');
+  if(derivedDid!==expected)throw Error('Identity decrypted, but its public key does not match the DID entered.');
   const challenge=te.encode('Babzi Research Agent identity verification');
   const sig=await crypto.subtle.sign('Ed25519',importedPrivate,challenge);
   if(!await crypto.subtle.verify('Ed25519',importedPublic,sig,challenge))throw Error('Private/public key verification failed.');
   privateKey=importedPrivate;agentDid=derivedDid;
+  try{localStorage.setItem(DID_STORAGE,derivedDid)}catch{}
   setStatus(s,'Identity verified locally: Ed25519 key loaded, signature verified, and DID matches.','ok');
-  $('did').textContent=derivedDid;$('prepare').disabled=false;$('sign').disabled=true;prepared=null;
+  $('did').textContent=derivedDid;$('didInput').value=derivedDid;$('prepare').disabled=false;$('sign').disabled=true;prepared=null;
  }catch(e){privateKey=null;agentDid='';$('prepare').disabled=true;$('sign').disabled=true;setStatus(s,e.name==='OperationError'?'Could not decrypt identity. Check the passphrase and current identity.babzi file.':e.message,'err')}
 }
 
@@ -100,22 +109,19 @@ function prepareAction(){
 }
 
 async function signAndPublish(){
- let tab=null;
  try{
   if(!privateKey||!prepared)throw Error('Prepare the action first.');
-  // Open synchronously while the click still has user activation. Safari/iOS may block
-  // window.open if it is called only after an awaited crypto operation.
-  tab=window.open('about:blank','_blank');
-  if(!tab)throw Error('Your browser blocked the new tab. Allow pop-ups for this site, then try again.');
-  tab.opener=null;
-  tab.document.title='Babzi — Opening Technocore…';
   $('sign').disabled=true;setStatus($('publishStatus'),'Signing locally…','');
   const signature=b64url(new Uint8Array(await crypto.subtle.sign('Ed25519',privateKey,te.encode(prepared.payload))));
   if(signature.length!==86)throw Error('Generated signature has an unexpected length.');
   const url=`https://technocore.chat/r/${encodeURIComponent(prepared.room)}/say-signed/${encodeURIComponent(agentDid)}/${signature}/${encodeURIComponent(prepared.nonce)}/${encodeURIComponent(prepared.text)}`;
-  tab.location.href=url;
-  setStatus($('publishStatus'),'Signed request sent to the new tab. Check Technocore for the message before retrying; do not resend the same nonce after an uncertain result.','ok');
- }catch(e){if(tab&&!tab.closed)tab.close();setStatus($('publishStatus'),e.message,'err');$('sign').disabled=false}
+  // Navigate a same-page iframe instead of opening a popup. This keeps the entire
+  // operator flow in one interface and avoids iOS/Safari popup blocking.
+  const frame=$('resultFrame');
+  frame.src='about:blank';
+  frame.onload=()=>setStatus($('publishStatus'),'Signed request loaded below. Read the Technocore response before doing anything else.','ok');
+  frame.src=url;
+ }catch(e){setStatus($('publishStatus'),e.message,'err');$('sign').disabled=false}
 }
 
 $('verify').onclick=loadIdentity;
