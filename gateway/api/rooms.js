@@ -1,8 +1,22 @@
 const TECHNCORE_ORIGIN = 'https://technocore.chat';
+const BABZI_ORIGIN = 'https://babcan-inc.github.io';
+
+function cors(res) {
+  res.setHeader('Access-Control-Allow-Origin', BABZI_ORIGIN);
+  res.setHeader('Vary', 'Origin');
+}
 
 export default async function handler(req, res) {
+  cors(res);
+
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(204).end();
+  }
+
   if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
+    res.setHeader('Allow', 'GET, OPTIONS');
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
