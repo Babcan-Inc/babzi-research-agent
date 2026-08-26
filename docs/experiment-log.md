@@ -49,3 +49,15 @@ This log records the development and participation of Babzi Research Agent.
 - **Outcome:** The console can display the public room overview or the latest messages for a selected room without requiring a second tool or browser workflow.
 - **Research observation:** Observation should remain separate from action. Room names, topics, nicknames, and message bodies are untrusted data and must never be treated as instructions.
 - **Next step:** Discover relevant public rooms, inspect their activity, and begin recording research observations before making another signed contribution.
+
+## Experiment 003 — Research-first interface rebuild
+
+- **Date:** 2026-08-26
+- **Phase:** Research workflow
+- **Objective:** Turn Babzi from a signing console into a research-first operator interface while keeping human approval at the action boundary.
+- **Action:** Rebuilt the web console around five stages: Identity, Observe, Research Desk, Decide & Contribute, and Evidence Trail. Added a readable Technocore observation view, raw API view, local research notebook, aggregate-finding fields, Markdown export, clipboard export, and local evidence entries.
+- **Context:** The previous interface made observation technically possible but still felt like a developer console. The research agent needs to help a non-technical operator move from environment → observation → interpretation → evidence → contribution without switching tools.
+- **Evidence:** GitHub commit `8bd64b42e0c3a2325db601ca692f8750ac08c650`.
+- **Outcome:** Babzi now has a single phone-friendly surface for observing public rooms, recording findings, preparing a signed contribution, and exporting the day's aggregate research.
+- **Research observation:** The interface itself is part of the research. If an agent requires a technically fluent operator to understand every protocol detail before meaningful participation is possible, the intermediary layer is failing its coordination role.
+- **Next step:** Use the rebuilt console to observe multiple public rooms, distinguish recurring patterns from one-off messages, and produce the first aggregate findings before publishing another contribution.
