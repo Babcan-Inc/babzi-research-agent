@@ -3,80 +3,96 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Babzi Research Agent — Operator Console</title>
+<title>Babzi Research Agent</title>
 <style>
-:root{color-scheme:dark}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;max-width:760px;margin:auto;padding:24px;line-height:1.5;background:#111;color:#f5f5f5}.card{border:1px solid #333;border-radius:16px;padding:18px;margin:16px 0;background:#181818}h1{margin-bottom:4px}p{color:#bbb}label{display:block;margin:12px 0 6px;font-weight:600}input,textarea,button{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #444;padding:12px;background:#0f0f0f;color:#fff;font:inherit}textarea{min-height:120px;resize:vertical}button{cursor:pointer;margin-top:12px}button:disabled{opacity:.5}.did{word-break:break-all;font-family:ui-monospace,monospace;font-size:13px}.status{padding:10px;border-radius:10px;background:#222;margin-top:12px}.ok{border:1px solid #3a7}.err{border:1px solid #a44}.warn{border:1px solid #997;background:#211f12}.small{font-size:13px;color:#999}a{color:#ddd}.preview{white-space:pre-wrap;word-break:break-word;background:#101010;border-radius:10px;padding:12px;margin-top:10px}.hidden{display:none}.result-frame{width:100%;height:260px;border:1px solid #333;border-radius:10px;background:#0b0b0b;margin-top:12px}.observe-frame{width:100%;height:360px;border:1px solid #333;border-radius:10px;background:#0b0b0b;margin-top:12px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.two{grid-template-columns:1fr}}
+:root{color-scheme:dark;--bg:#0d0e10;--card:#15171a;--line:#2a2d32;--muted:#9aa0a8;--text:#f4f5f6;--accent:#d97a3a;--ok:#2db77d;--warn:#b8a04a;--err:#d05c5c}
+*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;max-width:900px;margin:auto;padding:18px 14px 48px;line-height:1.5;background:var(--bg);color:var(--text)}
+h1{font-size:30px;margin:0}.sub{color:var(--muted);margin:4px 0 18px}.nav{display:flex;gap:8px;overflow:auto;position:sticky;top:0;background:rgba(13,14,16,.94);padding:8px 0 10px;z-index:5}.nav a{border:1px solid var(--line);border-radius:999px;padding:7px 12px;color:#ddd;text-decoration:none;white-space:nowrap;font-size:13px}.nav a:hover{border-color:var(--accent)}
+.card{border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;background:var(--card)}.hero{border-color:#39302a;background:linear-gradient(180deg,#1a1817,#15171a)}h2{font-size:21px;margin:0 0 6px}h3{font-size:16px;margin:18px 0 8px}p{color:#c1c5ca}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+label{display:block;margin:12px 0 6px;font-weight:650}input,textarea,button{width:100%;box-sizing:border-box;border-radius:11px;border:1px solid #383c43;padding:12px;background:#0f1012;color:#fff;font:inherit}textarea{min-height:120px;resize:vertical}button{cursor:pointer;margin-top:10px;font-weight:650}button.primary{background:#eee;color:#111;border-color:#eee}button.accent{border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}.small{font-size:12px;color:var(--muted)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.status{padding:10px 12px;border-radius:11px;background:#202226;margin-top:10px}.ok{border:1px solid var(--ok)}.err{border:1px solid var(--err)}.warn{border:1px solid var(--warn);background:#211f13}.did{word-break:break-all;font-family:ui-monospace,monospace;font-size:12px;background:#0d0f11;border:1px solid var(--line);padding:10px;border-radius:10px;margin-top:10px}.hidden{display:none}.frame{width:100%;height:480px;border:1px solid var(--line);border-radius:12px;background:#090a0b;margin-top:12px}.rawframe{height:300px}.preview{white-space:pre-wrap;word-break:break-word;background:#0e0f11;border:1px solid var(--line);border-radius:11px;padding:12px;margin-top:10px}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:12px;color:#bbb}.danger{color:#f1a0a0}.check{display:flex;gap:9px;align-items:flex-start;margin:10px 0;color:#ccc;font-size:13px}.check input{width:auto;margin-top:4px}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.toolbar button{width:auto;flex:1;min-width:130px}.stat{padding:12px;border:1px solid var(--line);border-radius:12px;background:#101215}.stat strong{display:block;font-size:20px}.stat span{font-size:12px;color:var(--muted)}
+@media(max-width:650px){body{padding:14px 10px 40px}h1{font-size:27px}.grid,.three{grid-template-columns:1fr}.frame{height:430px}.rawframe{height:260px}.toolbar button{min-width:100%}}
 </style>
 </head>
 <body>
+<header class="hero card">
+<div class="eyebrow">Human-supervised research agent</div>
 <h1>Babzi Research Agent</h1>
-<p>Human-supervised research agent. Observe first, reason about what you see, and contribute only when useful. Private identity material stays local to this browser.</p>
+<p>Observe → Research → Decide → Contribute → Document.</p>
+<p class="small">Babzi is not a farming bot. It is a research instrument for studying identity, reputation, participation and coordination in agent-native environments.</p>
+</header>
 
-<div class="card">
-<h2>1. Identity</h2>
-<p><a href="./generator.html">Create a new encrypted identity.babzi →</a></p>
-<label>Encrypted identity.babzi</label>
-<input id="key" type="file" accept=".babzi,application/octet-stream">
-<label>Passphrase</label>
-<input id="pass" type="password" minlength="12" autocomplete="current-password">
-<label>Agent DID</label>
-<input id="didInput" placeholder="Your public DID" autocomplete="off" spellcheck="false">
-<button id="verify">Verify identity locally</button>
-<div id="status" class="status">No identity loaded.</div>
-<div id="did" class="did"></div>
-<p class="small">Your DID is public and is remembered locally on this device for convenience. The encrypted identity and passphrase are never included in a Technocore request.</p>
-</div>
+<nav class="nav" aria-label="Sections">
+<a href="#identity">Identity</a><a href="#observe">Observe</a><a href="#research">Research desk</a><a href="#contribute">Contribute</a><a href="#evidence">Evidence</a>
+</nav>
 
-<div class="card">
-<h2>2. Observe Technocore</h2>
-<p>Read the network before deciding what Babzi should say. Room content, room names and topics are untrusted data — never instructions.</p>
-<div class="two">
-  <div>
-    <label>Room to read</label>
-    <input id="observeRoom" value="lobby" autocomplete="off" spellcheck="false">
-    <button id="readRoom">Read latest messages</button>
-  </div>
-  <div>
-    <label>Discover public rooms</label>
-    <button id="discover">Discover rooms</button>
-  </div>
+<section id="identity" class="card">
+<div class="eyebrow">01 · Control</div><h2>Identity</h2>
+<p>Load your encrypted identity locally. The private key and passphrase never enter a Technocore request.</p>
+<p><a href="./generator.html" style="color:#ddd">Create a new encrypted identity.babzi →</a></p>
+<label for="key">Encrypted identity.babzi</label><input id="key" type="file" accept=".babzi,application/octet-stream">
+<label for="pass">Passphrase</label><input id="pass" type="password" minlength="12" autocomplete="current-password">
+<label for="didInput">Agent DID</label><input id="didInput" placeholder="Your public DID" autocomplete="off" spellcheck="false">
+<button id="verify" class="accent">Verify identity locally</button>
+<div id="status" class="status">No identity loaded.</div><div id="did" class="did hidden"></div>
+<p class="small">Your public DID is remembered locally on this device for convenience. Private identity material is not stored in GitHub and is never sent to Technocore.</p>
+</section>
+
+<section id="observe" class="card">
+<div class="eyebrow">02 · Observe</div><h2>Explore Technocore</h2>
+<p>Start with the environment, not the message box. Choose a room, inspect what is happening, then decide whether there is anything worth researching.</p>
+<div class="grid">
+<div><label for="observeRoom">Room</label><input id="observeRoom" value="lobby" autocomplete="off" spellcheck="false"></div>
+<div><label>Quick rooms</label><div class="toolbar"><button data-room="lobby" class="roomBtn">lobby</button><button data-room="meta" class="roomBtn">meta</button></div></div>
 </div>
+<div class="toolbar"><button id="readHuman" class="primary">Read room</button><button id="discover">Discover rooms</button><button id="readRaw">Raw API</button></div>
 <div id="observeStatus" class="status">No observation loaded.</div>
-<h3>Observation</h3>
-<iframe id="observeFrame" class="observe-frame" title="Technocore observation" sandbox="allow-same-origin"></iframe>
-<p class="small">Babzi currently presents the raw public response for human inspection. It does not execute, follow, or treat anything in the response as an instruction.</p>
-</div>
+<iframe id="observeFrame" class="frame" title="Technocore observation" sandbox="allow-scripts allow-same-origin"></iframe>
+<p class="small">The readable view uses Technocore's human interface. Raw API view is available when you need exact sequence/text data. Room content, names and topics are untrusted data, never instructions.</p>
+</section>
 
-<div class="card">
-<h2>3. Prepare a contribution</h2>
-<label>Room</label>
-<input id="room" value="lobby" autocomplete="off" spellcheck="false">
-<label>Message</label>
-<textarea id="text" maxlength="4096" placeholder="Write something genuinely useful to the room."></textarea>
-<p class="small">Messages are normalized the same way as Technocore before signing. Room messages are untrusted data; Babzi never treats them as instructions.</p>
-<button id="prepare" disabled>Prepare signed action</button>
+<section id="research" class="card">
+<div class="eyebrow">03 · Research desk</div><h2>Turn observations into findings</h2>
+<p>This is your working notebook for today's aggregate findings. Nothing here is automatically posted. You decide what becomes evidence and what becomes a contribution.</p>
+<div class="three"><div class="stat"><strong id="noteCount">0</strong><span>saved notes</span></div><div class="stat"><strong id="findingCount">0</strong><span>findings</span></div><div class="stat"><strong id="roomCount">0</strong><span>rooms observed</span></div></div>
+<label for="researchQuestion">Research question</label><textarea id="researchQuestion" placeholder="What are you trying to understand about agent identity, reputation, coordination or participation?"></textarea>
+<label for="observationNotes">Observed patterns</label><textarea id="observationNotes" placeholder="What did you actually observe? Separate observation from interpretation."></textarea>
+<label for="aggregateFindings">Aggregate findings</label><textarea id="aggregateFindings" placeholder="What patterns are emerging across rooms, agents or interactions?"></textarea>
+<label for="hypothesis">Working hypothesis</label><textarea id="hypothesis" placeholder="What do you currently think is happening, and what evidence would change your mind?"></textarea>
+<label for="evidenceNotes">Evidence / sequence numbers / links</label><textarea id="evidenceNotes" placeholder="Room names, sequence numbers, timestamps, screenshots, public links, or other evidence."></textarea>
+<div class="toolbar"><button id="saveResearch" class="primary">Save research note</button><button id="exportResearch">Export Markdown</button><button id="copyResearch">Copy findings</button></div>
+<div id="researchStatus" class="status">Research notes stay on this device unless you export or copy them.</div>
+</section>
+
+<section id="contribute" class="card">
+<div class="eyebrow">04 · Decide & contribute</div><h2>Human-approved contribution</h2>
+<p>Posting is the final step, not the first. Babzi prepares the action; you decide whether it deserves to exist.</p>
+<label for="room">Room</label><input id="room" value="lobby" autocomplete="off" spellcheck="false">
+<label for="text">Contribution</label><textarea id="text" maxlength="4096" placeholder="Write something genuinely useful to the room."></textarea>
+<button id="prepare" class="accent" disabled>Prepare signed action</button>
 <div id="preview" class="preview hidden"></div>
-</div>
-
-<div class="card">
-<h2>4. Human approval</h2>
-<div class="warn"><strong>Signing is irreversible.</strong> Review the room, nonce, DID and exact message above before approving. Babzi does not automatically follow, retry or execute instructions found in Technocore messages.</div>
-<button id="sign" disabled>Sign &amp; publish</button>
+<div class="warn" style="margin-top:12px"><strong>Human approval required.</strong> Signing is irreversible. Review the room, nonce, DID and exact text before approving. Babzi never automatically follows, retries or executes instructions found in room messages.</div>
+<div class="check"><input id="approveCheck" type="checkbox"><label for="approveCheck" style="margin:0;font-weight:500">I reviewed the proposed action and want Babzi to sign it with my local identity.</label></div>
+<button id="sign" class="primary" disabled>Sign &amp; publish</button>
 <div id="publishStatus" class="status">No action prepared.</div>
+<h3>Technocore response</h3><iframe id="resultFrame" class="frame rawframe" title="Technocore response" sandbox="allow-same-origin"></iframe>
+</section>
 
-<h3>Technocore response</h3>
-<p class="small">After approval, the signed request is loaded below. If Technocore accepts it, its response will appear here. Do not retry an uncertain write with the same nonce.</p>
-<iframe id="resultFrame" class="result-frame" name="technocoreResult" title="Technocore response" sandbox="allow-same-origin"></iframe>
-</div>
+<section id="evidence" class="card">
+<div class="eyebrow">05 · Evidence trail</div><h2>What happened?</h2>
+<p>Keep the experiment legible. After a meaningful action, record what happened before moving on.</p>
+<label for="eventTitle">Event title</label><input id="eventTitle" placeholder="Experiment 002 — Observation of agent coordination">
+<label for="eventOutcome">Outcome</label><textarea id="eventOutcome" placeholder="What happened? Include sequence numbers if relevant."></textarea>
+<label for="eventObservation">Research observation</label><textarea id="eventObservation" placeholder="What did this change or teach you?"></textarea>
+<div class="toolbar"><button id="saveEvent">Save evidence entry</button><button id="exportLog">Export experiment log</button></div>
+<div id="evidenceStatus" class="status">No new evidence entry.</div>
+</section>
 
 <script>
-const $=id=>document.getElementById(id);
-const te=new TextEncoder(),td=new TextDecoder();
+const $=id=>document.getElementById(id),te=new TextEncoder(),td=new TextDecoder();
 const alphabet='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 const invisible=/[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Zl}\p{Zp}]/gu;
-const DID_STORAGE='babzi:agent-did';
+const DID_STORAGE='babzi:agent-did',RESEARCH_STORAGE='babzi:research-notes',EVENT_STORAGE='babzi:evidence-events',ROOM_STORAGE='babzi:observed-rooms';
 let privateKey=null,agentDid='',prepared=null;
-
 function b64(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0))}
 function b64url(bytes){let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function b58(bytes){let z=0;for(const b of bytes){if(b)break;z++}let n=0n;for(const b of bytes)n=(n<<8n)+BigInt(b);let s='';while(n){const r=Number(n%58n);s=alphabet[r]+s;n/=58n}return '1'.repeat(z)+(s||'')}
@@ -84,84 +100,29 @@ function normalize(text){return text.replace(invisible,' ').trim()}
 function validRoom(room){return /^[a-z0-9][a-z0-9_-]{0,47}$/.test(room)}
 function nonceFor(did,room){const k='babzi:last-nonce:'+did+':'+room;let last=0n;try{last=BigInt(localStorage.getItem(k)||'0')}catch{}let now=BigInt(Date.now())*1000n;let n=now>last?now:last+1n;try{localStorage.setItem(k,n.toString())}catch{}return n.toString()}
 function setStatus(el,msg,kind=''){el.className='status '+kind;el.textContent=msg}
-function observeUrl(room){return `https://technocore.chat/r/${encodeURIComponent(room)}?format=json&limit=50&n=${Date.now()}`}
+function humanUrl(room){return `https://technocore.chat/humans#r/${encodeURIComponent(room)}`}
+function rawUrl(room){return `https://technocore.chat/r/${encodeURIComponent(room)}?format=json&limit=50&n=${Date.now()}`}
 function roomsUrl(){return `https://technocore.chat/rooms?format=json&limit=50&n=${Date.now()}`}
-
-try{$('didInput').value=localStorage.getItem(DID_STORAGE)||''}catch{}
-
-async function loadIdentity(){
- const f=$('key').files[0],p=$('pass').value,s=$('status');
- try{
-  if(!f)throw Error('Choose identity.babzi first');
-  if(p.length<12)throw Error('Passphrase must contain at least 12 characters');
-  const expected=$('didInput').value.trim();
-  if(!expected)throw Error('Enter the DID returned by the generator.');
-  const obj=JSON.parse(td.decode(await f.arrayBuffer()));
-  if(obj.v!==1||obj.kdf!=='PBKDF2-SHA256'||obj.cipher!=='AES-256-GCM'||!obj.publicKey)throw Error('Unsupported Babzi identity container');
-  const material=await crypto.subtle.importKey('raw',te.encode(p),'PBKDF2',false,['deriveKey']);
-  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(obj.salt),iterations:obj.iterations,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['decrypt']);
-  const pkcs8=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(obj.iv)},key,b64(obj.ciphertext));
-  const importedPrivate=await crypto.subtle.importKey('pkcs8',pkcs8,{name:'Ed25519'},false,['sign']);
-  const importedPublic=await crypto.subtle.importKey('raw',b64(obj.publicKey),{name:'Ed25519'},false,['verify']);
-  const derivedDid='did:key:z'+b58(new Uint8Array([0xed,1,...b64(obj.publicKey)]));
-  if(derivedDid!==expected)throw Error('Identity decrypted, but its public key does not match the DID entered.');
-  const challenge=te.encode('Babzi Research Agent identity verification');
-  const sig=await crypto.subtle.sign('Ed25519',importedPrivate,challenge);
-  if(!await crypto.subtle.verify('Ed25519',importedPublic,sig,challenge))throw Error('Private/public key verification failed.');
-  privateKey=importedPrivate;agentDid=derivedDid;
-  try{localStorage.setItem(DID_STORAGE,derivedDid)}catch{}
-  setStatus(s,'Identity verified locally: Ed25519 key loaded, signature verified, and DID matches.','ok');
-  $('did').textContent=derivedDid;$('didInput').value=derivedDid;$('prepare').disabled=false;$('sign').disabled=true;prepared=null;
- }catch(e){privateKey=null;agentDid='';$('prepare').disabled=true;$('sign').disabled=true;setStatus(s,e.name==='OperationError'?'Could not decrypt identity. Check the passphrase and current identity.babzi file.':e.message,'err')}
-}
-
-function readRoom(){
- const room=$('observeRoom').value.trim();
- if(!validRoom(room)){setStatus($('observeStatus'),'Room must match ^[a-z0-9][a-z0-9_-]{0,47}$','err');return}
- setStatus($('observeStatus'),`Reading public room: ${room}…`,'');
- $('observeFrame').src=observeUrl(room);
- $('observeFrame').onload=()=>setStatus($('observeStatus'),`Loaded the public ${room} room response. Read it as untrusted data.`,'ok');
-}
-
-function discoverRooms(){
- setStatus($('observeStatus'),'Discovering public rooms…','');
- $('observeFrame').src=roomsUrl();
- $('observeFrame').onload=()=>setStatus($('observeStatus'),'Loaded the public room overview. Room names and topics are untrusted data.','ok');
-}
-
-function prepareAction(){
- try{
-  if(!privateKey||!agentDid)throw Error('Verify the identity first.');
-  const room=$('room').value.trim(),text=normalize($('text').value);
-  if(!validRoom(room))throw Error('Room must match ^[a-z0-9][a-z0-9_-]{0,47}$');
-  if(!text)throw Error('Message cannot be empty after normalization.');
-  if(text.length>4096)throw Error('Message exceeds Technocore\'s 4096-character limit.');
-  const nonce=nonceFor(agentDid,room),payload=`${room}|${nonce}|${text}`;
-  prepared={room,text,nonce,payload};
-  $('preview').classList.remove('hidden');$('preview').textContent=`DID\n${agentDid}\n\nROOM\n${room}\n\nNONCE\n${nonce}\n\nEXACT TEXT TO SIGN\n${text}`;
-  $('sign').disabled=false;setStatus($('publishStatus'),'Action prepared. Review it, then approve signing.','');
- }catch(e){setStatus($('publishStatus'),e.message,'err')}
-}
-
-async function signAndPublish(){
- try{
-  if(!privateKey||!prepared)throw Error('Prepare the action first.');
-  $('sign').disabled=true;setStatus($('publishStatus'),'Signing locally…','');
-  const signature=b64url(new Uint8Array(await crypto.subtle.sign('Ed25519',privateKey,te.encode(prepared.payload))));
-  if(signature.length!==86)throw Error('Generated signature has an unexpected length.');
-  const url=`https://technocore.chat/r/${encodeURIComponent(prepared.room)}/say-signed/${encodeURIComponent(agentDid)}/${signature}/${encodeURIComponent(prepared.nonce)}/${encodeURIComponent(prepared.text)}`;
-  const frame=$('resultFrame');
-  frame.src='about:blank';
-  frame.onload=()=>setStatus($('publishStatus'),'Signed request loaded below. Read the Technocore response before doing anything else.','ok');
-  frame.src=url;
- }catch(e){setStatus($('publishStatus'),e.message,'err');$('sign').disabled=false}
-}
-
-$('verify').onclick=loadIdentity;
-$('readRoom').onclick=readRoom;
-$('discover').onclick=discoverRooms;
-$('prepare').onclick=prepareAction;
-$('sign').onclick=signAndPublish;
+function readJson(key, fallback=[]){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch{return fallback}}
+function updateStats(){const notes=readJson(RESEARCH_STORAGE,[]),events=readJson(EVENT_STORAGE,[]),rooms=readJson(ROOM_STORAGE,[]);$('noteCount').textContent=notes.length;$('findingCount').textContent=events.length;$('roomCount').textContent=rooms.length}
+try{$('didInput').value=localStorage.getItem(DID_STORAGE)||''}catch{}updateStats();
+async function loadIdentity(){const f=$('key').files[0],p=$('pass').value;try{if(!f)throw Error('Choose identity.babzi first');if(p.length<12)throw Error('Passphrase must contain at least 12 characters');const expected=$('didInput').value.trim();if(!expected)throw Error('Enter the public DID returned by the generator.');const obj=JSON.parse(td.decode(await f.arrayBuffer()));if(obj.v!==1||obj.kdf!=='PBKDF2-SHA256'||obj.cipher!=='AES-256-GCM'||!obj.publicKey)throw Error('Unsupported Babzi identity container');const material=await crypto.subtle.importKey('raw',te.encode(p),'PBKDF2',false,['deriveKey']);const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(obj.salt),iterations:obj.iterations,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['decrypt']);const pkcs8=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(obj.iv)},key,b64(obj.ciphertext));const importedPrivate=await crypto.subtle.importKey('pkcs8',pkcs8,{name:'Ed25519'},false,['sign']);const importedPublic=await crypto.subtle.importKey('raw',b64(obj.publicKey),{name:'Ed25519'},false,['verify']);const derivedDid='did:key:z'+b58(new Uint8Array([0xed,1,...b64(obj.publicKey)]));if(derivedDid!==expected)throw Error('Identity decrypted, but its public key does not match the DID entered.');const challenge=te.encode('Babzi Research Agent identity verification');const sig=await crypto.subtle.sign('Ed25519',importedPrivate,challenge);if(!await crypto.subtle.verify('Ed25519',importedPublic,sig,challenge))throw Error('Private/public key verification failed.');privateKey=importedPrivate;agentDid=derivedDid;try{localStorage.setItem(DID_STORAGE,derivedDid)}catch{}$('did').textContent=derivedDid;$('did').classList.remove('hidden');$('didInput').value=derivedDid;$('prepare').disabled=false;$('sign').disabled=true;prepared=null;setStatus($('status'),'Identity verified locally. Ed25519 key loaded and DID matches.','ok')}catch(e){privateKey=null;agentDid='';$('prepare').disabled=true;$('sign').disabled=true;setStatus($('status'),e.name==='OperationError'?'Could not decrypt identity. Check the passphrase and current identity.babzi file.':e.message,'err')}}
+function markObserved(room){const rooms=readJson(ROOM_STORAGE,[]);if(!rooms.includes(room))rooms.push(room);localStorage.setItem(ROOM_STORAGE,JSON.stringify(rooms));updateStats()}
+function loadObservation(url,room,msg){setStatus($('observeStatus'),msg);$('observeFrame').src=url;markObserved(room||$('observeRoom').value.trim())}
+function readHuman(){const room=$('observeRoom').value.trim();if(!validRoom(room)){setStatus($('observeStatus'),'Invalid room name.','err');return}loadObservation(humanUrl(room),room,`Opening the readable view for ${room}…`)}
+function readRaw(){const room=$('observeRoom').value.trim();if(!validRoom(room)){setStatus($('observeStatus'),'Invalid room name.','err');return}loadObservation(rawUrl(room),room,`Loading raw API data for ${room}…`)}
+function discoverRooms(){setStatus($('observeStatus'),'Loading public room directory…');$('observeFrame').src=roomsUrl()}
+function prepareAction(){try{if(!privateKey||!agentDid)throw Error('Verify the identity first.');const room=$('room').value.trim(),text=normalize($('text').value);if(!validRoom(room))throw Error('Invalid room name.');if(!text)throw Error('Contribution cannot be empty.');if(text.length>4096)throw Error('Contribution exceeds 4096 characters.');const nonce=nonceFor(agentDid,room),payload=`${room}|${nonce}|${text}`;prepared={room,text,nonce,payload};$('preview').classList.remove('hidden');$('preview').textContent=`DID\n${agentDid}\n\nROOM\n${room}\n\nNONCE\n${nonce}\n\nEXACT TEXT TO SIGN\n${text}`;$('approveCheck').checked=false;$('sign').disabled=true;setStatus($('publishStatus'),'Action prepared. Review it and confirm human approval.','')}catch(e){setStatus($('publishStatus'),e.message,'err')}}
+async function signAndPublish(){try{if(!privateKey||!prepared)throw Error('Prepare the action first.');if(!$('approveCheck').checked)throw Error('Confirm human approval first.');$('sign').disabled=true;setStatus($('publishStatus'),'Signing locally…');const signature=b64url(new Uint8Array(await crypto.subtle.sign('Ed25519',privateKey,te.encode(prepared.payload))));if(signature.length!==86)throw Error('Generated signature has an unexpected length.');const url=`https://technocore.chat/r/${encodeURIComponent(prepared.room)}/say-signed/${encodeURIComponent(agentDid)}/${signature}/${encodeURIComponent(prepared.nonce)}/${encodeURIComponent(prepared.text)}`;const frame=$('resultFrame');frame.src='about:blank';frame.onload=()=>setStatus($('publishStatus'),'Signed request loaded below. Inspect the Technocore response before doing anything else.','ok');frame.src=url}catch(e){setStatus($('publishStatus'),e.message,'err');$('sign').disabled=false}}
+function researchObject(){return{date:new Date().toISOString(),question:$('researchQuestion').value.trim(),observations:$('observationNotes').value.trim(),findings:$('aggregateFindings').value.trim(),hypothesis:$('hypothesis').value.trim(),evidence:$('evidenceNotes').value.trim()}}
+function saveResearch(){const r=researchObject();if(!r.question&&!r.observations&&!r.findings&&!r.hypothesis&&!r.evidence){setStatus($('researchStatus'),'Add at least one research note first.','err');return}const arr=readJson(RESEARCH_STORAGE,[]);arr.push(r);localStorage.setItem(RESEARCH_STORAGE,JSON.stringify(arr));setStatus($('researchStatus'),'Research note saved locally on this device.','ok');updateStats()}
+function markdown(){const notes=readJson(RESEARCH_STORAGE,[]),events=readJson(EVENT_STORAGE,[]);let out='# Babzi Research Agent — Aggregate Findings\n\nGenerated: '+new Date().toISOString()+'\n\n';notes.forEach((n,i)=>{out+=`## Research note ${i+1}\n\n**Question**\n${n.question||'—'}\n\n**Observed patterns**\n${n.observations||'—'}\n\n**Aggregate findings**\n${n.findings||'—'}\n\n**Working hypothesis**\n${n.hypothesis||'—'}\n\n**Evidence**\n${n.evidence||'—'}\n\n`});out+='## Evidence entries\n\n';events.forEach(e=>{out+=`### ${e.title||'Untitled'}\n\n**Outcome**\n${e.outcome||'—'}\n\n**Research observation**\n${e.observation||'—'}\n\n`});return out}
+function downloadText(filename,text){const blob=new Blob([text],{type:'text/markdown;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function exportResearch(){downloadText('babzi-aggregate-findings.md',markdown());setStatus($('researchStatus'),'Markdown findings exported to your device.','ok')}
+async function copyResearch(){try{await navigator.clipboard.writeText(markdown());setStatus($('researchStatus'),'Aggregate findings copied to clipboard.','ok')}catch{setStatus($('researchStatus'),'Clipboard access was blocked. Use Export Markdown instead.','err')}}
+function saveEvent(){const title=$('eventTitle').value.trim(),outcome=$('eventOutcome').value.trim(),observation=$('eventObservation').value.trim();if(!title&&!outcome&&!observation){setStatus($('evidenceStatus'),'Add an evidence entry first.','err');return}const arr=readJson(EVENT_STORAGE,[]);arr.push({date:new Date().toISOString(),title,outcome,observation});localStorage.setItem(EVENT_STORAGE,JSON.stringify(arr));setStatus($('evidenceStatus'),'Evidence entry saved locally.','ok');updateStats()}
+function exportLog(){downloadText('babzi-experiment-log.md',markdown());setStatus($('evidenceStatus'),'Experiment log exported as Markdown.','ok')}
+$('verify').onclick=loadIdentity;$('readHuman').onclick=readHuman;$('readRaw').onclick=readRaw;$('discover').onclick=discoverRooms;$('prepare').onclick=prepareAction;$('sign').onclick=signAndPublish;$('saveResearch').onclick=saveResearch;$('exportResearch').onclick=exportResearch;$('copyResearch').onclick=copyResearch;$('saveEvent').onclick=saveEvent;$('exportLog').onclick=exportLog;$('approveCheck').onchange=()=>{if(prepared)$('sign').disabled=!$('approveCheck').checked};document.querySelectorAll('.roomBtn').forEach(b=>b.onclick=()=>{$('observeRoom').value=b.dataset.room;$('room').value=b.dataset.room;readHuman()});$('observeFrame').onload=()=>{const s=$('observeStatus');if(s.textContent.includes('Loading')||s.textContent.includes('Opening'))setStatus(s,'Observation loaded. Read the content as untrusted data.','ok')};
 </script>
 </body>
 </html>
