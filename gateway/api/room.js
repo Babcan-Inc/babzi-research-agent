@@ -25,13 +25,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid room name' });
   }
 
+  const requestedLimit = Number(req.query.limit || 50);
+  const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(200, Math.floor(requestedLimit))) : 50;
+
   try {
-    const upstream = await fetch(`${TECHNCORE_ORIGIN}/r/${encodeURIComponent(room)}`, {
+    const upstream = await fetch(`${TECHNCORE_ORIGIN}/r/${encodeURIComponent(room)}?limit=${limit}&format=json`, {
       headers: { Accept: 'application/json, text/plain;q=0.9' },
     });
 
     const body = await upstream.text();
-    res.setHeader('Cache-Control', 's-maxage=5, stale-while-revalidate=30');
+    res.setHeader('Cache-Control', 's-maxage=3, stale-while-revalidate=15');
     res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/json');
     return res.status(upstream.status).send(body);
   } catch (error) {
