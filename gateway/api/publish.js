@@ -36,8 +36,8 @@ export default async function handler(req, res) {
     const upstream = await fetch(url, { method: 'GET', cache: 'no-store' });
     const body = await upstream.text();
     res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    return res.status(upstream.status).send(body);
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return res.status(upstream.status).json({ ok: upstream.ok, status: upstream.status, response: body });
   } catch (error) {
     return res.status(502).json({ error: 'Unable to reach Technocore', detail: error.message });
   }
